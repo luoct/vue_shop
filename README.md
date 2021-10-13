@@ -19,6 +19,7 @@ npm run build
 ```
 npm run lint
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### API
++ http://139.9.202.95:8888/api/private/v1
++ http://8.131.62.137:1016/api/private/v1
++ http://vueshop.pixiv.download/api/private/v1/
