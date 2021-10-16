@@ -132,6 +132,7 @@
                 size="mini"
                 type="warning"
                 icon="el-icon-setting"
+                @click="showSetRoleDialog(scope.row)"
               ></el-button>
             </el-tooltip>
 
@@ -187,6 +188,59 @@
           >确 定</el-button>
         </div>
       </el-dialog>
+      <el-dialog
+        title="分配角色"
+        :visible.sync="setRoleDialogVisible"
+      >
+        <el-form :model="setRoleForm">
+          <el-form-item
+            label="当前的用户"
+            label-width="200px"
+          >
+            <el-input
+              v-model="setRoleForm.username"
+              disabled
+            ></el-input>
+          </el-form-item>
+          <el-form-item
+            label="当前的角色"
+            label-width="200px"
+          >
+            <el-input
+              v-model="setRoleForm.role_name"
+              disabled
+            ></el-input>
+          </el-form-item>
+          <el-form-item
+            label="分配新角色"
+            label-width="200px"
+          >
+            <el-select
+              v-model="selectRoleId"
+              clearable
+              placeholder="请选择"
+            >
+              <el-option
+                v-for="item in roleList"
+                :key="item.id"
+                :label="item.roleName"
+                :value="item.id"
+              >
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+        <div
+          slot="footer"
+          class="dialog-footer"
+        >
+          <el-button @click="setRoleDialogVisible = false">取 消</el-button>
+          <el-button
+            type="primary"
+            @click="setRole"
+          >确 定</el-button>
+        </div>
+      </el-dialog>
     </div>
   </div>
 
@@ -217,6 +271,10 @@ export default {
         email: '',
         mobile: '',
       },
+      setRoleDialogVisible: false,
+      roleList: [],
+      setRoleForm: {},
+      selectRoleId: '',
     }
   },
   created() {
@@ -293,6 +351,26 @@ export default {
         })
       }).catch(() => {
         this.$message.info('取消删除')
+      })
+    },
+    showSetRoleDialog(user) {
+      this.selectRoleId = ''
+      this.setRoleForm.username = user.username
+      this.setRoleForm.role_name = user.role_name
+      this.setRoleForm.id = user.id
+      this.$http.get('/roles').then(({ data: res }) => {
+        if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
+        this.roleList = res.data
+      })
+      this.setRoleDialogVisible = true
+    },
+    setRole() {
+      if (!this.selectRoleId) return this.$message.error('请选择一个角色')
+      this.$http.put('/users/' + this.setRoleForm.id + '/role', { rid: this.selectRoleId }).then(({ data: res }) => {
+        if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
+        this.$message.success('分配鑫角色成功！')
+        this.getUserList()
+        this.setRoleDialogVisible = false
       })
     }
 
