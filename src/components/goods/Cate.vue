@@ -194,14 +194,14 @@ export default {
 
     },
     addCate() {
-      // if (!this.addCateForm.cate_name) {
-        this.$http.post('/categories', this.addCateForm).then(({ data: res }) => {
-          if (res.meta.status !== 201) return this.$message.error(res.meta.msg)
-          this.$message.success('添加分类成功')
-          this.getCateList()
-          this.addCateDialogVisible = false
-        })
-      // }
+      if (this.addCateForm.cate_name === '') return
+      this.$http.post('/categories', this.addCateForm).then(({ data: res }) => {
+        if (res.meta.status !== 201) return this.$message.error(res.meta.msg)
+        this.$message.success('添加分类成功')
+        this.getCateList()
+        this.addCateDialogVisible = false
+      })
+
     }
   },
 }
