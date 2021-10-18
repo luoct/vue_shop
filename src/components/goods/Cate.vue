@@ -84,7 +84,7 @@
           label="分类名称： "
           label-width="200px"
         >
-          <el-input v-model="addCateForm.cate_name"></el-input>
+          <el-input v-model="addCateForm.cat_name"></el-input>
         </el-form-item>
         <el-form-item
           label="父级分类： "
@@ -132,9 +132,9 @@ export default {
       ],
       addCateDialogVisible: false,
       addCateForm: {
-        cate_pid: 0,
-        cate_name: '',
-        cate_level: 0,
+        cat_pid: 0,
+        cat_name: '',
+        cat_level: 0,
       },
       parentCateList: [],
       cascaderProps: {
@@ -152,10 +152,10 @@ export default {
   },
   methods: {
     getCateList() {
-      this.$http.get('/categories', { parmas: this.queryInfo }).then(({ data: res }) => {
+      this.$http.get('/categories', { params: this.queryInfo }).then(({ data: res }) => {
         if (res.meta.status !== 200) return this.$message.error(res.meta.data)
-        this.cateList = res.data
-        this.total = res.data.length
+        this.cateList = res.data.result
+        this.total = res.data.total
       })
     },
     handleSizeChange(v) {
@@ -167,15 +167,16 @@ export default {
       this.getCateList()
     },
     showAddCateDialog() {
-      this.addCateForm.cate_name = ''
-      this.addCateForm.cate_pid = 0
-      this.addCateForm.cate_level = 0
+      this.addCateForm.cat_name = ''
+      this.addCateForm.cat_pid = 0
+      this.addCateForm.cat_level = 0
       this.parentCateKeys = []
       this.getParentCateList()
       this.addCateDialogVisible = true
     },
     getParentCateList() {
-      this.$http.get('/categories', { parmas: { type: 2 } }).then(({ data: res }) => {
+      this.$http.get('/categories', { params: { type: 2 } }).then(({ data: res }) => {
+
         if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
         this.parentCateList = res.data
       })
@@ -183,18 +184,18 @@ export default {
     parentCateChange() {
       let keysLen = this.parentCateKeys.length
       if (keysLen > 0) {
-        this.addCateForm.cate_pid = this.
+        this.addCateForm.cat_pid = this.
           parentCateKeys[keysLen - 1]
-        this.addCateForm.cate_level = keysLen
+        this.addCateForm.cat_level = keysLen
         return
       } else {
-        this.addCateForm.cate_pid = 0
-        this.addCateForm.cate_level = 0
+        this.addCateForm.cat_pid = 0
+        this.addCateForm.cat_level = 0
       }
 
     },
     addCate() {
-      if (this.addCateForm.cate_name === '') return
+      if (this.addCateForm.cat_name === '') return
       this.$http.post('/categories', this.addCateForm).then(({ data: res }) => {
         if (res.meta.status !== 201) return this.$message.error(res.meta.msg)
         this.$message.success('添加分类成功')
