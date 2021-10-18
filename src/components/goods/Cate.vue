@@ -53,11 +53,12 @@
           <el-button
             type="primary"
             size="mini"
+            @click="showeditCateDialog(scope.row.cat_id)"
           >编辑</el-button>
           <el-button
             type="danger"
             size="mini"
-            @click="delete(scope.row)"
+            @click="deleteCate(scope.row.cat_id)"
           >删除</el-button>
         </template>
       </tree-table>
@@ -110,6 +111,32 @@
         >确 定</el-button>
       </div>
     </el-dialog>
+    <el-dialog
+      title="编辑商品分类"
+      :visible.sync="editCateDialogVisible"
+    >
+      <el-form
+        :model="editCateForm"
+        ref="editCateFormRef"
+      >
+        <el-form-item
+          label="分类名称： "
+          label-width="200px"
+        >
+          <el-input v-model="editCateForm.cat_name"></el-input>
+        </el-form-item>
+      </el-form>
+      <div
+        slot="footer"
+        class="dialog-footer"
+      >
+        <el-button @click="editCateDialogVisible = false">取 消</el-button>
+        <el-button
+          type="primary"
+          @click="editCate"
+        >确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -145,6 +172,10 @@ export default {
         checkStrictly: true
       },
       parentCateKeys: [],
+      editCateDialogVisible: false,
+      editCateForm: {
+        cat_name: ''
+      },
     }
   },
   created() {
@@ -194,7 +225,7 @@ export default {
       }
 
     },
-    addCate() {
+    addCate(cate) {
       if (this.addCateForm.cat_name === '') return
       this.$http.post('/categories', this.addCateForm).then(({ data: res }) => {
         if (res.meta.status !== 201) return this.$message.error(res.meta.msg)
@@ -203,6 +234,39 @@ export default {
         this.addCateDialogVisible = false
       })
 
+    },
+    deleteCate(id) {
+      this.$confirm('是否删除该分类?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$http.delete('/categories/' + id).then(({ data: res }) => {
+          if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
+          this.$message.success('删除成功')
+          this.getCateList()
+        })
+      }).catch(() => {
+        this.$message.info('已取消删除')
+      })
+    },
+    editCate() {
+      this.$http.put('/categories/' + this.editCateForm.cat_id, { cat_name: this.editCateForm.cat_name }).then(({ data: res }) => {
+        if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
+        this.$message.success('编辑分类成功')
+        this.getCateList()
+        this.editCateDialogVisible = false
+      })
+    },
+    showeditCateDialog(id) {
+      this.editCateForm.cat_name = ''
+      this.editCateForm.cat_pid = 0
+      this.editCateForm.cat_level = 0
+      this.$http.get('/categories/' + id).then(({ data: res }) => {
+        if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
+        this.editCateForm = res.data
+        this.editCateDialogVisible = true
+      })
     }
   },
 }
