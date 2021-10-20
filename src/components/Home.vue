@@ -49,7 +49,9 @@
         >登出</el-button>
       </el-header>
       <el-main>
-        <router-view></router-view>
+        <transition name="switch">
+          <router-view></router-view>
+        </transition>
       </el-main>
     </el-container>
   </el-container>
@@ -114,5 +116,16 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+
+  .switch-enter-active,
+  .switch-leave-avtive {
+    transition: all 0.5s;
+  }
+  .switch-enter {
+    transform: translateX(-50px);
+  }
+  .switch-leave-to {
+    transform: translateX(50px);
   }
 </style>
